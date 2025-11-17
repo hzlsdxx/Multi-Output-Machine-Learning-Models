@@ -10,9 +10,9 @@ This project simultaneously predicts three target variables: `cropland_area`, `b
 ## Application Scenarios
 
 This project is designed for predicting land use changes in Protected Areas, including:
-- `cropland_area` (cropland area)
-- `built_up_area` (built-up area)
-- `pas_area` (protected area)
+- `cropland_area` 
+- `built_up_area` 
+- `pas_area`
 
 However, it can also be generalized to other zero-inflated regression tasks.
 
