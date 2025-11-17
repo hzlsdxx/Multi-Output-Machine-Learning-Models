@@ -301,9 +301,6 @@ Supported categorical columns will be automatically encoded using LabelEncoder.
 
 Issues and Pull Requests are welcome!
 
-## License
-
-This project is licensed under the MIT License.
 
 ## Acknowledgments
 
