@@ -259,7 +259,7 @@ class TwoStageEasyEnsembleLightGBM:
             })
 
             if self.verbose and len(classifier_history) % 5 == 0:
-                print(f"EasyEnsemble第 {len(classifier_history)} 次迭代, F1分数: {mean_f1:.4f}")
+                print(f"EasyEnsemble iteration {len(classifier_history)}: F1 Score: {mean_f1:.4f}")
 
             return -mean_f1
 
