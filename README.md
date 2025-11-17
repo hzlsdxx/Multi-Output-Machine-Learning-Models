@@ -5,7 +5,7 @@ This repository contains multi-output regression model implementations for handl
 
 ## Overview
 
-This project is specifically designed for handling zero-inflated data and class imbalance in multi-output regression problems. The models can simultaneously predict multiple related target variables, particularly suitable for data scenarios containing large amounts of zero values.
+This project simultaneously predicts three target variables: `cropland_area`, `built_up_area`, `and pas_area`.
 
 ## Application Scenarios
 
