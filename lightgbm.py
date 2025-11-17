@@ -928,34 +928,153 @@ class TwoStageEasyEnsembleLightGBM:
                 print(f"  Positive sample probability median: {np.median(pos_probs):.4f}")
                 print(f"  Positive sample R²: {r2_score(pos_true, pos_final_pred):.4f}")
 
-    if __name__ == "__main__":
-        print("=" * 80)
-        print("Two-Stage EasyEnsemble-LightGBM Multi-output Regression Model")
-        print("Configuration: LightGBM + EasyEnsemble for handling imbalanced data + Optimized Bayesian Search")
-        print("Optimization strategy: Only optimize key parameters to reduce computational overhead")
-        print("Required dependencies:")
-        print("pip install scikit-optimize")
-        print("pip install lightgbm")
-        print("pip install imbalanced-learn")
-        print("pip install matplotlib")
-        print("=" * 80)
+def main_easy_ensemble_lightgbm_optimization():
+    """
+    Main function - Two-Stage EasyEnsemble-LightGBM Model + Optimized Bayesian Search
+    """
+    # Load data
+    try:
+        df = pd.read_csv('PA_1km_drop_AF_new.csv')
+        print(f"Data loaded successfully, shape: {df.shape}")
+    except FileNotFoundError:
+        print("Please replace the CSV file path with the correct one")
+        return
 
-        try:
-            # Run the main function
-            model, classifier_opt, regressor_opt, cv_results = main_easy_ensemble_lightgbm_optimization()
+    print("=" * 80)
+    print("Two-Stage EasyEnsemble-LightGBM Regression Model + Optimized Bayesian Search")
+    print("Stage 1: EasyEnsemble Classifier predicts zero-value probabilities (LightGBM base learners)")
+    print("Stage 2: LightGBM Regressor predicts specific values")
+    print("Final prediction: Probability-weighted combination")
+    print("Optimization strategy: Only optimize key parameters, others use default values")
+    print("=" * 80)
 
-            # Optional: Run prediction analysis
-            print("\nDo you want to run LightGBM EasyEnsemble prediction result analysis? (y/n, default y): ", end="")
-            analysis_choice = input().strip().lower()
+    # Create model instance
+    model = TwoStageEasyEnsembleLightGBM(
+        easy_ensemble_n_estimators=10,
+        cv=5,
+        random_state=42,
+        verbose=True,
+        constraint_column='pa_total_area',
+        use_gpu=True,
+        zero_threshold=1e-6,
+        n_jobs=-1  # Use all CPU cores
+    )
 
-            if analysis_choice != 'n':
-                # Reload data for analysis
-                df = pd.read_csv('PA_1km_drop_AF_new.csv')
-                X, y_continuous, y_binary = model.prepare_data(df)
-                analyze_lightgbm_easy_ensemble_predictions(model, X, y_continuous, sample_size=200)
+    # Prepare data
+    X, y_continuous, y_binary = model.prepare_data(df)
+    print(f"Data preparation completed, feature count: {X.shape[1]}, sample count: {X.shape[0]}")
 
-        except KeyboardInterrupt:
-            print("\nUser interrupted execution")
-        except Exception as e:
-            print(f"Execution error: {e}")
-            print("Please check if dependencies are correctly installed")
+    # Display data distribution
+    for i, target in enumerate(model.target_names):
+        zero_count = np.sum(y_binary[:, i] == 0)
+        positive_count = np.sum(y_binary[:, i] == 1)
+        print(f"{target}: Zero samples {zero_count}, Positive samples {positive_count} "
+              f"(Positive ratio: {positive_count / (zero_count + positive_count) * 100:.1f}%)")
+
+    # Bayesian optimization of EasyEnsemble classifier (streamlined)
+    print("\n=== EasyEnsemble Classifier Optimized Bayesian Search (F1 score optimization) ===")
+    print("Optimizing parameters: easy_ensemble_n_estimators, n_estimators, learning_rate, num_leaves")
+    classifier_optimization = model.bayesian_optimize_classifier(
+        X, y_binary, n_calls=30, cv_folds=5  # Reduced iteration count
+    )
+
+    # Bayesian optimization of regressor (streamlined)
+    print("\n=== Regressor Optimized Bayesian Search ===")
+    print("Optimizing parameters: n_estimators, learning_rate, num_leaves, subsample")
+    regressor_optimization = model.bayesian_optimize_regressor(
+        X, y_continuous, y_binary, n_calls=30, cv_folds=5  # Reduced iteration count
+    )
+
+    # Cross-validation using optimized parameters
+    print("\n=== Cross-validation with Optimized Parameters ===")
+    cv_results = model.cross_validate(X, y_continuous, y_binary, cv_folds=5)
+
+    # Train final model on full data
+    print("\n=== Training Final Model ===")
+    model.fit(X, y_continuous, y_binary)
+
+    # Predictions
+    predictions = model.predict(X)
+    detailed_predictions = model.predict_detailed(X)
+
+    # Print comprehensive results
+    model.print_comprehensive_results(cv_results)
+
+    # Save the model
+    model.save_model("final_AF_two_stage_easy_ensemble_lightgbm.pkl")
+
+    print(f"\n" + "=" * 80)
+    print("Two-Stage EasyEnsemble-LightGBM Model Summary")
+    print("=" * 80)
+    print(f"Best Classifier F1 Score: {classifier_optimization['best_f1_score']:.4f}")
+    print(f"Best Regressor R²: {regressor_optimization['best_r2_score']:.4f}")
+    print(f"Final Average F1 Score: {cv_results['overall']['f1_mean']:.4f}")
+    print(f"Final Average R²: {cv_results['overall']['r2_mean']:.4f}")
+    print(f"Best EasyEnsemble Base Learners: {classifier_optimization['best_easy_ensemble_n_estimators']}")
+    print(f"Classifier Optimization Time: {classifier_optimization['optimization_time']:.2f} seconds")
+    print(f"Regressor Optimization Time: {regressor_optimization['optimization_time']:.2f} seconds")
+
+    # Print best parameters
+    print(f"\nBest EasyEnsemble Classifier Parameters:")
+    print(f"  Base learners count: {classifier_optimization['best_easy_ensemble_n_estimators']}")
+    for param, value in classifier_optimization['best_params'].items():
+        if isinstance(value, float):
+            print(f"  {param}: {value:.4f}")
+        else:
+            print(f"  {param}: {value}")
+
+    print(f"\nBest Regressor Parameters:")
+    for param, value in regressor_optimization['best_params'].items():
+        if isinstance(value, float):
+            print(f"  {param}: {value:.4f}")
+        else:
+            print(f"  {param}: {value}")
+
+    # Display unoptimized default parameters
+    print(f"\nUnoptimized Classifier Parameters (using defaults):")
+    unoptimized_classifier = ['subsample', 'feature_fraction', 'lambda_l1', 'lambda_l2', 'boosting_type']
+    for param in unoptimized_classifier:
+        if param in model.classifier_params:
+            print(f"  {param}: {model.classifier_params[param]}")
+
+    print(f"\nUnoptimized Regressor Parameters (using defaults):")
+    unoptimized_regressor = ['feature_fraction', 'lambda_l1', 'lambda_l2', 'min_child_weight', 'boosting_type']
+    for param in unoptimized_regressor:
+        if param in model.regressor_params:
+            print(f"  {param}: {model.regressor_params[param]}")
+
+    return model, classifier_optimization, regressor_optimization, cv_results
+
+if __name__ == "__main__":
+    print("=" * 80)
+    print("Two-Stage EasyEnsemble-LightGBM Multi-output Regression Model")
+    print("Configuration: LightGBM + EasyEnsemble for handling imbalanced data + Optimized Bayesian Search")
+    print("Optimization strategy: Only optimize key parameters to reduce computational overhead")
+    print("Required dependencies:")
+    print("pip install scikit-optimize")
+    print("pip install lightgbm")
+    print("pip install imbalanced-learn")
+    print("pip install matplotlib")
+    print("=" * 80)
+
+    try:
+        # Run the main function
+        model, classifier_opt, regressor_opt, cv_results = main_easy_ensemble_lightgbm_optimization()
+
+        # Optional: Run prediction analysis
+        print("\nDo you want to run LightGBM EasyEnsemble prediction result analysis? (y/n, default y): ", end="")
+        analysis_choice = input().strip().lower()
+
+        if analysis_choice != 'n':
+            # Reload data for analysis
+            df = pd.read_csv('PA_1km_drop_AF_new.csv')
+            X, y_continuous, y_binary = model.prepare_data(df)
+            analyze_lightgbm_easy_ensemble_predictions(model, X, y_continuous, sample_size=200)
+
+    except KeyboardInterrupt:
+        print("\nUser interrupted execution")
+    except Exception as e:
+        print(f"Execution error: {e}")
+        print("Please check if dependencies are correctly installed")
+
+
