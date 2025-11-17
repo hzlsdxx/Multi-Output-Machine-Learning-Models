@@ -147,7 +147,7 @@ model.save_model("trained_model.pkl")
 #### 2. Model Prediction
 
 ```python
-from predict_easy import SimpleEasyEnsemblePredictor
+from predict import SimpleEasyEnsemblePredictor
 
 # Create predictor
 predictor = SimpleEasyEnsemblePredictor("trained_model.pkl")
