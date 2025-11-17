@@ -1,7 +1,7 @@
 
 # Multi-Output Machine Learning Models
 
-This repository contains multi-output regression model implementations for handling imbalanced data. The project implements three mainstream gradient boosting algorithms: XGBoost, LightGBM, and CatBoost.
+This repository contains code for training, validation, prediction, and visualization of three multi-output models. The project implements three mainstream gradient boosting algorithms: XGBoost, LightGBM, and CatBoost.
 
 ## Overview
 
