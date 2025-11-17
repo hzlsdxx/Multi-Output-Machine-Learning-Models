@@ -21,7 +21,7 @@ However, it can also be generalized to other zero-inflated regression tasks.
 ```
 ├── catboost.py                    # CatBoost multi-output regression model
 ├── lightgbm.py                    # LightGBM multi-output regression model
-├── xgboost.py   # XGBoost multi-output regression model
+├── xgboost.py                     # XGBoost multi-output regression model
 ├── val.py                         # 10-fold cross-validation script
 ├── predict.py                     # Simplified prediction script
 ├── plot.py                        # Density scatter plot visualization script
@@ -147,7 +147,7 @@ model.save_model("trained_model.pkl")
 #### 2. Model Prediction
 
 ```python
-from predict_easy_1_ import SimpleEasyEnsemblePredictor
+from predict_easy import SimpleEasyEnsemblePredictor
 
 # Create predictor
 predictor = SimpleEasyEnsemblePredictor("trained_model.pkl")
@@ -163,7 +163,7 @@ predictor.predict_csv(
 #### 3. Cross-Validation
 
 ```python
-from val_easy__1_ import OptimalParamsTenFoldCV
+from val_easy import OptimalParamsTenFoldCV
 
 # Perform 10-fold cross-validation using trained model parameters
 cv_validator = OptimalParamsTenFoldCV(
@@ -289,7 +289,7 @@ Supported categorical columns will be automatically encoded using LabelEncoder.
 
 ## Visualization
 
-`plot3.py` provides high-quality density scatter plot visualization:
+`plot.py` provides high-quality density scatter plot visualization:
 - Density color mapping
 - 1:1 baseline
 - Regression line
