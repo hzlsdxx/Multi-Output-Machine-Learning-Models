@@ -19,20 +19,20 @@ However, it can also be generalized to other zero-inflated regression tasks.
 ## File Structure
 
 ```
-├── easy_catboost.py                    # CatBoost multi-output regression model
-├── easy_lightgbm.py                    # LightGBM multi-output regression model
-├── two_stage_xgboost_easyensemble.py   # XGBoost multi-output regression model
-├── val_easy__1_.py                     # 10-fold cross-validation script
-├── predict_easy_1_.py                  # Simplified prediction script
-├── plot3.py                            # Density scatter plot visualization script
-└── README.md                           # Project documentation
+├── catboost.py                    # CatBoost multi-output regression model
+├── lightgbm.py                    # LightGBM multi-output regression model
+├── xgboost.py   # XGBoost multi-output regression model
+├── val.py                         # 10-fold cross-validation script
+├── predict.py                     # Simplified prediction script
+├── plot.py                        # Density scatter plot visualization script
+└── README.md                      # Project documentation
 ```
 
 ## Core Features
 
 ### 1. Three Model Implementations
 
-#### XGBoost Version (`two_stage_xgboost_easyensemble.py`)
+#### XGBoost Version (`xgboost.py`)
 ```python
 from TwoStageEasyEnsembleXGBoost import TwoStageEasyEnsembleXGBoost
 
@@ -44,7 +44,7 @@ model = TwoStageEasyEnsembleXGBoost(
 )
 ```
 
-#### LightGBM Version (`easy_lightgbm.py`)
+#### LightGBM Version (`lightgbm.py`)
 ```python
 from TwoStageEasyEnsembleLightGBM import TwoStageEasyEnsembleLightGBM
 
@@ -56,7 +56,7 @@ model = TwoStageEasyEnsembleLightGBM(
 )
 ```
 
-#### CatBoost Version (`easy_catboost.py`)
+#### CatBoost Version (`catboost.py`)
 ```python
 from TwoStageEasyEnsembleCatBoost import TwoStageEasyEnsembleCatBoost
 
@@ -84,7 +84,6 @@ All models include complete data preprocessing pipelines:
 - Categorical variable encoding (LabelEncoder)
 - Missing value imputation (median imputation)
 - Automatic feature type identification and processing
-- Support for constraint columns
 
 ## Quick Start
 
@@ -183,10 +182,10 @@ cv_validator.print_comprehensive_results(cv_results)
 #### 4. Results Visualization
 
 ```python
-# Use plot3.py to create density scatter plots
+# Use plot.py to create density scatter plots
 # Prepare CSV file containing true values and predicted values
 # File should include columns: cropland_area, built_up_area, pas_area and their predictions
-python plot3.py
+python plot.py
 ```
 
 ## Evaluation Metrics
