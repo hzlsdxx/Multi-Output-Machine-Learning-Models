@@ -163,7 +163,7 @@ predictor.predict_csv(
 #### 3. Cross-Validation
 
 ```python
-from val_easy import OptimalParamsTenFoldCV
+from val import OptimalParamsTenFoldCV
 
 # Perform 10-fold cross-validation using trained model parameters
 cv_validator = OptimalParamsTenFoldCV(
