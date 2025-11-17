@@ -678,7 +678,7 @@ class TwoStageEasyEnsembleLightGBM:
             pickle.dump(model_data, f)
 
         if self.verbose:
-            print(f"模型已保存到: {filepath}")
+            print(f"Model has been saved to: {filepath}")
 
     def load_model(self, filepath: str):
         with open(filepath, 'rb') as f:
