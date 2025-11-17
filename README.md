@@ -5,7 +5,7 @@ This repository contains code for training, validation, prediction, and visualiz
 
 ## Overview
 
-This project simultaneously predicts three target variables: `cropland_area`, `built_up_area`, `and pas_area`.
+This project simultaneously predicts three target variables: `cropland_area`, `built_up_area`, and `pas_area`.
 
 ## Application Scenarios
 
